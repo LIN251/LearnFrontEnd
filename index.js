@@ -3,7 +3,8 @@ const API = (function () {
 
   const getTodos = async () => {
     const res = await fetch(`${API_URL}`);
-    return await res.json();
+    const alltodos = await res.json();
+    return alltodos;
   };
 
   const postTodo = async (newTodo) => {
@@ -35,7 +36,20 @@ const API = (function () {
     return await res.json();
   };
 
+  const patchTodo = async (id, todo) => {
+    const updateValue = {title:todo.title};
+    const res = await fetch(`${API_URL}/${id}`, {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+      },
+      body: JSON.stringify(updateValue),
+    });
+    return await res.json();
+  }
+
   return {
+    patchTodo,
     putTodo,
     getTodos,
     postTodo,
@@ -80,7 +94,9 @@ class TodoModel {
   async updateTitle(id, updateTodo) {
     const todo = this.#todos.find((todo) => todo.id === Number(id));
     todo.title = updateTodo;
-    const updatedTodo = await API.putTodo(id, todo);
+    // await API.putTodo(id, todo);
+    const newTodo = await API.patchTodo(id, todo);
+    return newTodo;
   }
 }
 
@@ -254,11 +270,6 @@ class TodoController {
         const editId = e.target.getAttribute("editBtn-id");
         this.view.createEditInput(`todo-${editId}`, editId); // create input
         this.view.hideEditShowSave(editId); // change edit to save
-        // const editDiv = this.view.getElementById(`todo-${editId}`);
-        // const titleElement = editDiv.querySelector(".title");
-        // console.log(titleElement)
-        // titleElement.textContent = "";
-        // this.view.createEditInput(editId)
       }
     });
   }
@@ -273,13 +284,15 @@ class TodoController {
         const editDiv = document.querySelector(`#todo-${saveId}`); // todo div
         const titleElement = editDiv.querySelector(".title"); // title div
 
+        const newTodo = this.model.updateTitle(saveId, editInput.value);
         this.view.updateTitleRemoveInput(
           titleElement,
           editInput.value,
           editInput
         );
         this.view.hideSaveShowEdit(saveId);
-        this.model.updateTitle(saveId, editInput.value);
+       
+        
       }
     });
   }
