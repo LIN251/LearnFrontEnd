@@ -62,7 +62,8 @@ const API = (function () {
 // post： create
 // delete： delete
 
-
+// # id
+// . class
 
 
 
@@ -115,7 +116,7 @@ class TodoView {
   constructor() {
     this.form = document.querySelector(".todo-app__form");
     // this.addBtn = document.querySelector(".todo-app__add-btn");
-    this.input = document.getElementById("todo-app__input");
+    this.input = document.querySelector("#todo-app__input");
     this.todolist = document.querySelector(".todolist");
   }
 
@@ -284,15 +285,15 @@ class TodoController {
         const editDiv = document.querySelector(`#todo-${saveId}`); // todo div
         const titleElement = editDiv.querySelector(".title"); // title div
 
-        const newTodo = this.model.updateTitle(saveId, editInput.value);
-        this.view.updateTitleRemoveInput(
-          titleElement,
-          editInput.value,
-          editInput
-        );
-        this.view.hideSaveShowEdit(saveId);
-       
-        
+        this.model.updateTitle(saveId, editInput.value)
+        .then((newTodo) => {
+          this.view.updateTitleRemoveInput(
+            titleElement,
+            newTodo.title,
+            editInput
+          );
+          this.view.hideSaveShowEdit(saveId);
+        });
       }
     });
   }
